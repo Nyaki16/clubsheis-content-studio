@@ -1,26 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --black: #0D0D0D;
+  --white: #FAFAFA;
+  --yellow: #F5C842;
+  --red: #C0392B;
+  --grey-light: #E8E8E8;
+  --grey-mid: #9A9A9A;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-black: var(--black);
+  --color-white: var(--white);
+  --color-yellow: var(--yellow);
+  --color-red: var(--red);
+  --color-grey-light: var(--grey-light);
+  --color-grey-mid: var(--grey-mid);
+  --font-display: var(--font-display);
+  --font-ui: var(--font-ui);
+  --font-body: var(--font-body);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font-ui), 'Barlow Condensed', sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+}
+
+.font-ui {
+  font-family: var(--font-ui), 'Barlow Condensed', sans-serif;
+}
+
+.font-body {
+  font-family: var(--font-body), 'Playfair Display', serif;
 }

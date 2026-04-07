@@ -31,21 +31,21 @@ export default function LoadingState() {
   }, []);
 
   return (
-    <div className="py-20 text-center">
-      <h2 className="font-display text-3xl tracking-wide mb-8">
+    <div className="py-20 text-center bg-white rounded-2xl border border-border-light">
+      <h2 className="font-display text-2xl font-bold text-text-primary mb-8">
         {messages[messageIndex]}
       </h2>
 
-      <div className="max-w-md mx-auto">
-        <div className="h-1 bg-grey-light overflow-hidden">
+      <div className="max-w-md mx-auto px-8">
+        <div className="h-2 bg-cream-dark rounded-full overflow-hidden">
           <div
-            className="h-full bg-yellow transition-all duration-500 ease-out"
+            className="h-full bg-brown rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      <p className="font-ui text-xs text-grey-mid mt-6">
+      <p className="font-ui text-xs text-text-muted mt-6">
         This usually takes 10–20 seconds
       </p>
     </div>

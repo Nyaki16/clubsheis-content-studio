@@ -1,40 +1,58 @@
 @import "tailwindcss";
 
 :root {
-  --black: #0D0D0D;
-  --white: #FAFAFA;
-  --yellow: #F5C842;
+  --brown: #7B4B2A;
+  --brown-light: #A0714E;
+  --cream: #FAF7F2;
+  --cream-dark: #F0EBE3;
+  --text-primary: #2D2D2D;
+  --text-secondary: #6B6B6B;
+  --text-muted: #9A9A9A;
+  --border: #E5DDD3;
+  --border-light: #EDE8E0;
+  --green: #4A8C5C;
+  --green-light: #E8F5E9;
+  --orange: #D4652E;
+  --orange-light: #FFF3ED;
+  --white: #FFFFFF;
   --red: #C0392B;
-  --grey-light: #E8E8E8;
-  --grey-mid: #9A9A9A;
 }
 
 @theme inline {
-  --color-black: var(--black);
+  --color-brown: var(--brown);
+  --color-brown-light: var(--brown-light);
+  --color-cream: var(--cream);
+  --color-cream-dark: var(--cream-dark);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
+  --color-border-light: var(--border-light);
+  --color-green: var(--green);
+  --color-green-light: var(--green-light);
+  --color-orange: var(--orange);
+  --color-orange-light: var(--orange-light);
   --color-white: var(--white);
-  --color-yellow: var(--yellow);
   --color-red: var(--red);
-  --color-grey-light: var(--grey-light);
-  --color-grey-mid: var(--grey-mid);
   --font-display: var(--font-display);
   --font-ui: var(--font-ui);
   --font-body: var(--font-body);
 }
 
 body {
-  background: var(--white);
-  color: var(--black);
-  font-family: var(--font-ui), 'Barlow Condensed', sans-serif;
+  background: var(--cream);
+  color: var(--text-primary);
+  font-family: var(--font-ui), 'DM Sans', sans-serif;
 }
 
 .font-display {
-  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-family: var(--font-display), 'Playfair Display', serif;
 }
 
 .font-ui {
-  font-family: var(--font-ui), 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui), 'DM Sans', sans-serif;
 }
 
 .font-body {
-  font-family: var(--font-body), 'Playfair Display', serif;
+  font-family: var(--font-body), 'DM Sans', sans-serif;
 }

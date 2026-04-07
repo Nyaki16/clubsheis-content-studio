@@ -3,58 +3,18 @@
 import { ContentType, ContentTypeOption } from '@/types';
 
 const contentTypes: ContentTypeOption[] = [
-  {
-    id: 'newsletter',
-    label: 'Newsletter',
-    description: 'Weekly member or client newsletter',
-    icon: 'newsletter',
-  },
-  {
-    id: 'carousel',
-    label: 'Carousel',
-    description: 'Multi-slide Instagram carousel',
-    icon: 'carousel',
-  },
-  {
-    id: 'reel',
-    label: 'Reel Script',
-    description: 'Short-form video script (30–90s)',
-    icon: 'reel',
-  },
-  {
-    id: 'static-image',
-    label: 'Static Image / Poster',
-    description: 'One-frame graphic or announcement',
-    icon: 'static',
-  },
-  {
-    id: 'email-sequence',
-    label: 'Email Sequence',
-    description: 'Multi-email nurture or launch sequence',
-    icon: 'email',
-  },
-  {
-    id: 'ad-creative',
-    label: 'Ad Creative',
-    description: 'Paid ad copy + concept',
-    icon: 'ad',
-  },
-  {
-    id: 'caption',
-    label: 'Caption / Social Post',
-    description: 'Single platform social post',
-    icon: 'caption',
-  },
-  {
-    id: 'transcript',
-    label: 'Transcript → Content',
-    description: 'Repurpose a transcript into multiple formats',
-    icon: 'transcript',
-  },
+  { id: 'newsletter', label: 'Newsletter', description: 'Weekly member or client newsletter', icon: 'newsletter' },
+  { id: 'carousel', label: 'Carousel', description: 'Multi-slide Instagram carousel', icon: 'carousel' },
+  { id: 'reel', label: 'Reel Script', description: 'Short-form video script (30–90s)', icon: 'reel' },
+  { id: 'static-image', label: 'Static Image / Poster', description: 'One-frame graphic or announcement', icon: 'static' },
+  { id: 'email-sequence', label: 'Email Sequence', description: 'Multi-email nurture or launch sequence', icon: 'email' },
+  { id: 'ad-creative', label: 'Ad Creative', description: 'Paid ad copy + concept', icon: 'ad' },
+  { id: 'caption', label: 'Caption / Social Post', description: 'Single platform social post', icon: 'caption' },
+  { id: 'transcript', label: 'Transcript → Content', description: 'Repurpose a transcript into multiple formats', icon: 'transcript' },
 ];
 
 function ContentIcon({ type }: { type: string }) {
-  const iconClass = 'w-8 h-8';
+  const iconClass = 'w-6 h-6';
   switch (type) {
     case 'newsletter':
       return (
@@ -83,8 +43,8 @@ function ContentIcon({ type }: { type: string }) {
     case 'email':
       return (
         <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7h18M8 7V4h8v3" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 3v4M8 3v4" />
         </svg>
       );
     case 'ad':
@@ -118,39 +78,38 @@ interface Props {
 export default function ContentTypeGrid({ selectedType, onSelect }: Props) {
   return (
     <div>
-      <h2 className="font-display text-2xl tracking-wide mb-1">
-        CONTENT TYPE
+      <h2 className="font-ui text-xs font-semibold tracking-wider text-text-muted uppercase mb-4">
+        Content Type
       </h2>
-      <p className="font-ui text-sm text-grey-mid mb-6">
-        What are you creating?
-      </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {contentTypes.map((ct) => (
           <button
             key={ct.id}
             onClick={() => onSelect(ct.id)}
-            className={`text-left p-6 border transition-all duration-200 hover:shadow-md group ${
+            className={`text-left p-5 rounded-xl border transition-all duration-200 hover:shadow-md group ${
               selectedType === ct.id
-                ? 'bg-yellow border-black shadow-md'
-                : 'bg-white border-grey-light hover:border-grey-mid'
+                ? 'bg-brown text-white border-brown shadow-md'
+                : 'bg-white border-border-light hover:border-border'
             }`}
           >
             <div
               className={`mb-3 ${
                 selectedType === ct.id
-                  ? 'text-black'
-                  : 'text-grey-mid group-hover:text-black'
+                  ? 'text-white/80'
+                  : 'text-text-muted group-hover:text-brown'
               }`}
             >
               <ContentIcon type={ct.icon} />
             </div>
-            <h3 className="font-display text-lg tracking-wide mb-1">
-              {ct.label.toUpperCase()}
+            <h3 className={`font-ui font-semibold text-sm mb-0.5 ${
+              selectedType === ct.id ? 'text-white' : 'text-text-primary'
+            }`}>
+              {ct.label}
             </h3>
             <p
               className={`font-ui text-xs ${
-                selectedType === ct.id ? 'text-black/70' : 'text-grey-mid'
+                selectedType === ct.id ? 'text-white/60' : 'text-text-muted'
               }`}
             >
               {ct.description}

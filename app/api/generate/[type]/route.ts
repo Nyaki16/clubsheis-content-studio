@@ -67,9 +67,15 @@ export async function POST(
         return NextResponse.json({ error: 'Invalid content type' }, { status: 400 });
     }
 
-    const toneNote = tone && tone !== client.tone
-      ? `\n\nTone adjustment requested: ${tone}`
-      : '';
+    // If tone contains a brand voice profile (multiline), inject it prominently
+    let toneNote = '';
+    if (tone && tone !== client.tone) {
+      if (tone.includes('BRAND VOICE PROFILE')) {
+        toneNote = `\n\n${tone}`;
+      } else {
+        toneNote = `\n\nTone adjustment requested: ${tone}`;
+      }
+    }
 
     const userMessage = `${typePrompt}${toneNote}\n\nTopic / Brief:\n${topic}`;
 

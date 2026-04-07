@@ -61,18 +61,12 @@ export default function CanvaOutputZone({
       const res = await fetch('/api/canva/materialise', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jobId: result.jobId,
-          candidateId: result.candidateId,
-        }),
+        body: JSON.stringify({ jobId: result.jobId, candidateId: result.candidateId }),
       });
-
       if (!res.ok) {
-        // Job might have expired — regenerate
         setError('Your Canva job expired. Tap \'Refresh Design\' to rebuild it in seconds.');
         return;
       }
-
       const data = await res.json();
       window.open(data.designUrl, '_blank');
     } catch {
@@ -82,30 +76,22 @@ export default function CanvaOutputZone({
 
   const downloadFromCanva = async () => {
     if (!result?.designId) {
-      // Need to materialise first
       try {
         const matRes = await fetch('/api/canva/materialise', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            jobId: result?.jobId,
-            candidateId: result?.candidateId,
-          }),
+          body: JSON.stringify({ jobId: result?.jobId, candidateId: result?.candidateId }),
         });
         if (!matRes.ok) {
           setError('Your Canva job expired. Tap \'Refresh Design\' to rebuild it in seconds.');
           return;
         }
         const matData = await matRes.json();
-
         setExporting(true);
         const expRes = await fetch('/api/canva/export', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            designId: matData.designId,
-            format: 'PNG',
-          }),
+          body: JSON.stringify({ designId: matData.designId, format: 'PNG' }),
         });
         if (expRes.ok) {
           const expData = await expRes.json();
@@ -120,21 +106,19 @@ export default function CanvaOutputZone({
   };
 
   useEffect(() => {
-    if (enabled) {
-      generateDesign();
-    }
+    if (enabled) generateDesign();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
   if (!enabled) return null;
 
   return (
-    <div className="border border-grey-light bg-white p-6">
-      <h3 className="font-display text-lg tracking-wide mb-4">CANVA DESIGN</h3>
+    <div className="bg-white rounded-2xl border border-border-light p-6">
+      <h3 className="font-ui font-semibold text-sm text-text-primary mb-4">Canva Design</h3>
 
       {noBrandKit && (
-        <div className="bg-yellow/20 border border-yellow px-4 py-2 mb-4">
-          <p className="font-ui text-xs text-black">
+        <div className="bg-orange-light rounded-lg border border-orange/20 px-4 py-2 mb-4">
+          <p className="font-ui text-xs text-orange">
             No Canva Brand Kit linked for this client. Design will use default styles.
           </p>
         </div>
@@ -142,21 +126,19 @@ export default function CanvaOutputZone({
 
       {loading && (
         <div className="text-center py-12">
-          <div className="w-8 h-8 border-2 border-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="font-ui text-sm text-grey-mid">
-            Creating your design in Canva...
-          </p>
+          <div className="w-8 h-8 border-2 border-brown border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="font-ui text-sm text-text-muted">Creating your design in Canva...</p>
         </div>
       )}
 
       {error && (
         <div className="text-center py-8">
-          <p className="font-ui text-sm text-grey-mid mb-4">{error}</p>
+          <p className="font-ui text-sm text-text-muted mb-4">{error}</p>
           <button
             onClick={generateDesign}
-            className="px-6 py-2 bg-black text-yellow font-display tracking-widest text-sm hover:bg-yellow hover:text-black transition-colors"
+            className="px-6 py-2.5 bg-brown text-white font-ui font-semibold text-sm rounded-full hover:bg-brown-light transition-colors"
           >
-            REFRESH DESIGN
+            Refresh Design
           </button>
         </div>
       )}
@@ -164,33 +146,29 @@ export default function CanvaOutputZone({
       {result && !loading && !error && (
         <div className="space-y-4">
           {result.thumbnailUrl && (
-            <div className="border border-grey-light overflow-hidden">
+            <div className="border border-border-light rounded-xl overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={result.thumbnailUrl}
-                alt="Canva design preview"
-                className="w-full h-auto"
-              />
+              <img src={result.thumbnailUrl} alt="Canva design preview" className="w-full h-auto" />
             </div>
           )}
 
           <div className="flex flex-col gap-2">
             <button
               onClick={openInCanva}
-              className="w-full px-4 py-3 bg-black text-yellow font-display tracking-widest text-sm hover:bg-yellow hover:text-black transition-colors"
+              className="w-full px-4 py-3 bg-brown text-white font-ui font-semibold text-sm rounded-full hover:bg-brown-light transition-colors"
             >
-              OPEN IN CANVA
+              Open in Canva
             </button>
             <button
               onClick={downloadFromCanva}
               disabled={exporting}
-              className="w-full px-4 py-3 border-2 border-black text-black font-display tracking-widest text-sm hover:bg-black hover:text-yellow transition-colors"
+              className="w-full px-4 py-3 border-2 border-brown text-brown font-ui font-semibold text-sm rounded-full hover:bg-brown hover:text-white transition-colors"
             >
-              {exporting ? 'EXPORTING...' : 'DOWNLOAD FROM CANVA'}
+              {exporting ? 'Exporting...' : 'Download from Canva'}
             </button>
             <button
               onClick={generateDesign}
-              className="w-full px-4 py-2 border border-grey-light text-grey-mid font-ui text-sm hover:border-yellow hover:text-black transition-colors"
+              className="w-full px-4 py-2 border border-border-light text-text-muted font-ui text-sm rounded-full hover:border-brown/40 hover:text-text-secondary transition-colors"
             >
               Regenerate Design
             </button>

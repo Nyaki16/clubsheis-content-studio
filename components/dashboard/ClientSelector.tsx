@@ -15,7 +15,7 @@ export default function ClientSelector({ selectedClient, onSelect }: Props) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newClient, setNewClient] = useState({
     name: '',
-    brandColour: '#F5C842',
+    brandColour: '#7B4B2A',
     tone: '',
   });
 
@@ -52,64 +52,57 @@ export default function ClientSelector({ selectedClient, onSelect }: Props) {
       isOwnBrand: false,
     };
     setClients((prev) => [...prev, client]);
-    setNewClient({ name: '', brandColour: '#F5C842', tone: '' });
+    setNewClient({ name: '', brandColour: '#7B4B2A', tone: '' });
     setShowAddForm(false);
     onSelect(client);
   };
 
   return (
     <div>
-      <h2 className="font-display text-2xl tracking-wide mb-1">
-        SELECT CLIENT
+      <h2 className="font-ui text-xs font-semibold tracking-wider text-text-muted uppercase mb-4">
+        Active Clients
       </h2>
-      <p className="font-ui text-sm text-grey-mid mb-6">
-        Choose who this content is for
-      </p>
 
-      <div className="flex flex-wrap gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {clients.map((client) => (
           <button
             key={client.id}
             onClick={() => onSelect(client)}
-            className={`flex items-center gap-3 px-5 py-4 border-2 transition-all duration-200 hover:shadow-md ${
+            className={`flex items-center gap-4 px-5 py-4 bg-white rounded-xl border transition-all duration-200 hover:shadow-md text-left ${
               selectedClient?.id === client.id
-                ? 'border-yellow bg-white shadow-md'
-                : 'border-grey-light bg-white hover:border-grey-mid'
+                ? 'border-brown shadow-md ring-1 ring-brown/20'
+                : 'border-border-light hover:border-border'
             }`}
           >
             <span
-              className="w-4 h-4 rounded-full flex-shrink-0"
+              className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-ui font-bold text-sm"
               style={{ backgroundColor: client.brandColour }}
-            />
-            <span className="font-ui font-medium text-sm">
-              {client.name}
+            >
+              {client.name.charAt(0)}
             </span>
-            {client.isOwnBrand && (
-              <span className="text-[10px] font-ui font-semibold bg-yellow text-black px-2 py-0.5 tracking-wider">
-                OWN BRAND
+            <div className="min-w-0">
+              <span className="font-ui font-semibold text-sm text-text-primary block truncate">
+                {client.name}
               </span>
-            )}
+              {client.isOwnBrand && (
+                <span className="text-[10px] font-ui font-semibold text-brown bg-orange-light rounded-full px-2 py-0.5 mt-1 inline-block">
+                  Own Brand
+                </span>
+              )}
+            </div>
           </button>
         ))}
 
         <button
           onClick={fetchFromSystem}
           disabled={fetchingClickUp}
-          className="flex items-center gap-3 px-5 py-4 border-2 border-dashed border-grey-mid hover:border-yellow transition-all duration-200 text-grey-mid hover:text-black"
+          className="flex items-center gap-4 px-5 py-4 bg-white/50 rounded-xl border border-dashed border-border hover:border-brown/40 transition-all duration-200 text-text-muted hover:text-text-secondary"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
+          <span className="w-10 h-10 rounded-full flex-shrink-0 bg-cream-dark flex items-center justify-center">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </span>
           <span className="font-ui font-medium text-sm">
             {fetchingClickUp ? 'Fetching...' : 'Fetch from system'}
           </span>
@@ -117,27 +110,19 @@ export default function ClientSelector({ selectedClient, onSelect }: Props) {
 
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-3 px-5 py-4 border-2 border-dashed border-grey-mid hover:border-yellow transition-all duration-200 text-grey-mid hover:text-black"
+          className="flex items-center gap-4 px-5 py-4 bg-white/50 rounded-xl border border-dashed border-border hover:border-brown/40 transition-all duration-200 text-text-muted hover:text-text-secondary"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
+          <span className="w-10 h-10 rounded-full flex-shrink-0 bg-cream-dark flex items-center justify-center">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+            </svg>
+          </span>
           <span className="font-ui font-medium text-sm">Add client</span>
         </button>
       </div>
 
       {showAddForm && (
-        <div className="mt-4 p-5 border border-grey-light bg-white max-w-md">
+        <div className="mt-4 p-5 bg-white rounded-xl border border-border-light max-w-md">
           <div className="space-y-3">
             <input
               type="text"
@@ -146,10 +131,10 @@ export default function ClientSelector({ selectedClient, onSelect }: Props) {
               onChange={(e) =>
                 setNewClient((prev) => ({ ...prev, name: e.target.value }))
               }
-              className="w-full px-3 py-2 border border-grey-light font-ui text-sm focus:outline-none focus:border-yellow"
+              className="w-full px-4 py-2.5 border border-border-light rounded-lg font-ui text-sm focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/20"
             />
             <div className="flex gap-3 items-center">
-              <label className="font-ui text-xs text-grey-mid">
+              <label className="font-ui text-xs text-text-muted">
                 Brand colour
               </label>
               <input
@@ -161,7 +146,7 @@ export default function ClientSelector({ selectedClient, onSelect }: Props) {
                     brandColour: e.target.value,
                   }))
                 }
-                className="w-8 h-8 border border-grey-light cursor-pointer"
+                className="w-8 h-8 rounded border border-border-light cursor-pointer"
               />
             </div>
             <input
@@ -171,13 +156,13 @@ export default function ClientSelector({ selectedClient, onSelect }: Props) {
               onChange={(e) =>
                 setNewClient((prev) => ({ ...prev, tone: e.target.value }))
               }
-              className="w-full px-3 py-2 border border-grey-light font-ui text-sm focus:outline-none focus:border-yellow"
+              className="w-full px-4 py-2.5 border border-border-light rounded-lg font-ui text-sm focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/20"
             />
             <button
               onClick={addNewClient}
-              className="bg-black text-yellow font-display tracking-widest px-6 py-2 hover:bg-yellow hover:text-black transition-colors"
+              className="bg-brown text-white font-ui font-semibold rounded-full px-6 py-2.5 text-sm hover:bg-brown-light transition-colors"
             >
-              ADD CLIENT
+              Add Client
             </button>
           </div>
         </div>

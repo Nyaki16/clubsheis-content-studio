@@ -1,26 +1,19 @@
 import type { Metadata } from 'next';
-import { Bebas_Neue, Barlow_Condensed, Playfair_Display } from 'next/font/google';
+import { Playfair_Display, DM_Sans } from 'next/font/google';
 import './globals.css';
-
-const bebasNeue = Bebas_Neue({
-  weight: '400',
-  subsets: ['latin'],
-  variable: '--font-display',
-  display: 'swap',
-});
-
-const barlowCondensed = Barlow_Condensed({
-  weight: ['400', '500', '600'],
-  subsets: ['latin'],
-  variable: '--font-ui',
-  display: 'swap',
-});
 
 const playfairDisplay = Playfair_Display({
   weight: ['400', '700'],
   style: ['normal', 'italic'],
   subsets: ['latin'],
-  variable: '--font-body',
+  variable: '--font-display',
+  display: 'swap',
+});
+
+const dmSans = DM_Sans({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin'],
+  variable: '--font-ui',
   display: 'swap',
 });
 
@@ -37,9 +30,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bebasNeue.variable} ${barlowCondensed.variable} ${playfairDisplay.variable} h-full antialiased`}
+      className={`${playfairDisplay.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-black">
+      <body className="min-h-full flex flex-col bg-cream text-text-primary">
         {children}
       </body>
     </html>

@@ -9,6 +9,30 @@ export const hardcodedClients: SelectedClient[] = [
     isOwnBrand: true,
     logoUrl: undefined,
     canvaBrandKitId: undefined,
+    deliverables: [
+      {
+        id: 'del-csi-newsletter',
+        contentType: 'newsletter',
+        label: 'Weekly Member Newsletter',
+        frequency: 'Weekly',
+        style: 'copy-minimal',
+        notes: 'Copy-focused with links to resources, upcoming events, and member spotlights',
+      },
+      {
+        id: 'del-csi-carousel',
+        contentType: 'carousel',
+        label: 'Educational Carousel',
+        frequency: 'Bi-weekly',
+        style: 'educational',
+      },
+      {
+        id: 'del-csi-reel',
+        contentType: 'reel',
+        label: 'Weekly Reel',
+        frequency: 'Weekly',
+        style: 'talk-to-camera',
+      },
+    ],
   },
   {
     id: 'palesa-dooms',
@@ -18,6 +42,23 @@ export const hardcodedClients: SelectedClient[] = [
     isOwnBrand: false,
     logoUrl: undefined,
     canvaBrandKitId: undefined,
+    deliverables: [
+      {
+        id: 'del-pd-newsletter',
+        contentType: 'newsletter',
+        label: 'Parent Newsletter',
+        frequency: 'Monthly',
+        style: 'editorial',
+        notes: 'Inspiring stories from young speakers, tips for parents, programme updates',
+      },
+      {
+        id: 'del-pd-caption',
+        contentType: 'caption',
+        label: 'Social Posts',
+        frequency: 'Weekly',
+        style: 'conversational',
+      },
+    ],
   },
   {
     id: 'sibulele-sibaca',
@@ -27,5 +68,22 @@ export const hardcodedClients: SelectedClient[] = [
     isOwnBrand: false,
     logoUrl: undefined,
     canvaBrandKitId: undefined,
+    deliverables: [
+      {
+        id: 'del-ss-carousel',
+        contentType: 'carousel',
+        label: 'Impact Stories',
+        frequency: 'Bi-weekly',
+        style: 'storytelling',
+        notes: 'Before/after stories, beneficiary spotlights, impact stats',
+      },
+      {
+        id: 'del-ss-caption',
+        contentType: 'caption',
+        label: 'LinkedIn Posts',
+        frequency: 'Weekly',
+        style: 'professional',
+      },
+    ],
   },
 ];

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carousel Export</title>
+
+<!-- Google Fonts — injected dynamically -->
+<link id="googleFontsLink" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=DM+Sans:wght@400;500;700&display=swap">
+
+<!-- html2canvas for PNG export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+  /* ============================================
+     BRAND CONFIG — Replace these values
+     ============================================ */
+  :root {
+    --color-primary: #396a6b;
+    --color-secondary: #f17a51;
+    --color-accent: #97d3b4;
+    --color-bg: #faf9f7;
+    --color-text: #2d2d2d;
+    --font-headline: 'Montserrat', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    font-family: var(--font-body);
+  }
+
+  /* ============================================
+     SLIDE FRAME — Export container
+     ============================================ */
+  #slideFrame {
+    width: 420px;
+    height: 525px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+
+  /* ============================================
+     SLIDE BASE
+     ============================================ */
+  .slide {
+    width: 420px;
+    height: 525px;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+  }
+
+  .slide.active {
+    display: flex;
+  }
+
+  /* ============================================
+     COVER SLIDE
+     ============================================ */
+  .slide-cover {
+    background: var(--color-primary);
+    color: var(--color-bg);
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .slide-cover .hashtag {
+    position: absolute;
+    top: 24px;
+    left: 40px;
+    font-family: var(--font-headline);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .slide-cover .headline {
+    font-family: var(--font-headline);
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1.15;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    max-width: 340px;
+  }
+
+  .slide-cover .byline {
+    position: absolute;
+    bottom: 28px;
+    left: 40px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-bg);
+    opacity: 0.8;
+  }
+
+  .slide-cover .swipe-arrow {
+    position: absolute;
+    bottom: 28px;
+    right: 40px;
+    font-size: 18px;
+    color: var(--color-bg);
+    opacity: 0.6;
+  }
+
+  /* ============================================
+     CONTENT SLIDE — Light variant
+     ============================================ */
+  .slide-light {
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  .slide-light .slide-heading {
+    font-family: var(--font-headline);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: var(--color-primary);
+  }
+
+  .slide-light .slide-body {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-text);
+  }
+
+  .slide-light .emphasis-line {
+    width: 40px;
+    height: 3px;
+    background: var(--color-secondary);
+    margin-top: 20px;
+    border-radius: 2px;
+  }
+
+  /* ============================================
+     CONTENT SLIDE — Dark variant
+     ============================================ */
+  .slide-dark {
+    background: var(--color-primary);
+    color: var(--color-bg);
+  }
+
+  .slide-dark .slide-heading {
+    font-family: var(--font-headline);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: var(--color-bg);
+  }
+
+  .slide-dark .slide-body {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-bg);
+    opacity: 0.9;
+  }
+
+  .slide-dark .emphasis-line {
+    width: 40px;
+    height: 3px;
+    background: var(--color-secondary);
+    margin-top: 20px;
+    border-radius: 2px;
+  }
+
+  /* ============================================
+     SLIDE BADGE (position indicator)
+     ============================================ */
+  .slide-badge {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    opacity: 0.5;
+  }
+
+  .slide-light .slide-badge { color: var(--color-text); }
+  .slide-dark .slide-badge { color: var(--color-bg); }
+
+  /* ============================================
+     SLIDE HANDLE (bottom attribution)
+     ============================================ */
+  .slide-handle {
+    position: absolute;
+    bottom: 24px;
+    left: 40px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.5;
+  }
+
+  .slide-light .slide-handle { color: var(--color-text); }
+  .slide-dark .slide-handle { color: var(--color-bg); }
+
+  /* ============================================
+     CTA SLIDE
+     ============================================ */
+  .slide-cta {
+    background: var(--color-primary);
+    color: var(--color-bg);
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .slide-cta .cta-greeting {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    margin-bottom: 4px;
+    opacity: 0.8;
+  }
+
+  .slide-cta .cta-name {
+    font-family: var(--font-headline);
+    font-size: 32px;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+
+  .slide-cta .cta-handle {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 28px;
+    opacity: 0.7;
+  }
+
+  .slide-cta .cta-button {
+    display: inline-block;
+    background: var(--color-secondary);
+    color: #ffffff;
+    font-family: var(--font-headline);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 14px 36px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ============================================
+     NAVIGATION (preview only — not exported)
+     ============================================ */
+  .nav-controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .nav-btn {
+    padding: 8px 20px;
+    border: none;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 14px;
+  }
+
+  .nav-btn:hover { opacity: 0.85; }
+
+  .nav-info {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: #666;
+  }
+
+  .export-btn {
+    margin-top: 12px;
+    padding: 10px 24px;
+    border: none;
+    background: var(--color-secondary);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-headline);
+    font-size: 14px;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<div id="slideFrame">
+  <!-- ====== SLIDE 1: COVER ====== -->
+  <div class="slide slide-cover active">
+    <div class="hashtag">HASHTAG_PLACEHOLDER</div>
+    <div class="headline">COVER_HEADLINE_PLACEHOLDER</div>
+    <div class="byline">by BRAND_NAME_PLACEHOLDER</div>
+    <div class="swipe-arrow">→</div>
+  </div>
+
+  <!-- ====== SLIDE 2: Content (Light) ====== -->
+  <div class="slide slide-light">
+    <div class="slide-badge">2/TOTAL_PLACEHOLDER</div>
+    <div class="slide-heading">HEADING_PLACEHOLDER</div>
+    <div class="slide-body">BODY_PLACEHOLDER</div>
+    <div class="emphasis-line"></div>
+    <div class="slide-handle">HANDLE_PLACEHOLDER</div>
+  </div>
+
+  <!-- ====== SLIDE 3: Content (Dark) ====== -->
+  <div class="slide slide-dark">
+    <div class="slide-badge">3/TOTAL_PLACEHOLDER</div>
+    <div class="slide-heading">HEADING_PLACEHOLDER</div>
+    <div class="slide-body">BODY_PLACEHOLDER</div>
+    <div class="emphasis-line"></div>
+    <div class="slide-handle">HANDLE_PLACEHOLDER</div>
+  </div>
+
+  <!-- ====== FINAL SLIDE: CTA ====== -->
+  <div class="slide slide-cta">
+    <div class="cta-greeting">Hey, I'm</div>
+    <div class="cta-name">BRAND_NAME_PLACEHOLDER</div>
+    <div class="cta-handle">HANDLE_PLACEHOLDER</div>
+    <div class="cta-button">CTA_PLACEHOLDER</div>
+  </div>
+</div>
+
+<!-- Navigation (for preview — not part of export) -->
+<div class="nav-controls">
+  <button class="nav-btn" onclick="prevSlide()">← Prev</button>
+  <span class="nav-info" id="navInfo">1 / 4</span>
+  <button class="nav-btn" onclick="nextSlide()">Next →</button>
+</div>
+<button class="export-btn" onclick="exportAll()">Export All Slides as PNG</button>
+
+<script>
+  // ============================================
+  // SLIDE NAVIGATION
+  // ============================================
+  let currentSlide = 0;
+  const totalSlides = 4; // UPDATE THIS to match actual slide count
+
+  function showSlide(index) {
+    const slides = document.querySelectorAll('.slide');
+    slides.forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+    slides[index].classList.add('active');
+    slides[index].style.display = 'flex';
+    document.getElementById('navInfo').textContent = `${index + 1} / ${totalSlides}`;
+  }
+
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    showSlide(currentSlide);
+  }
+
+  function prevSlide() {
+    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+    showSlide(currentSlide);
+  }
+
+  // ============================================
+  // PNG EXPORT
+  // ============================================
+  async function exportAll() {
+    const frame = document.getElementById('slideFrame');
+    for (let i = 0; i < totalSlides; i++) {
+      showSlide(i);
+      await new Promise(r => setTimeout(r, 300));
+      const canvas = await html2canvas(frame, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: null
+      });
+      const link = document.createElement('a');
+      link.download = `slide-${i + 1}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      await new Promise(r => setTimeout(r, 200));
+    }
+    alert('All slides exported!');
+  }
+</script>
+
+</body>
+</html>

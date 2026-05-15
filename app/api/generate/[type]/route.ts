@@ -8,9 +8,14 @@ import { buildEmailPrompt } from '@/lib/prompts/email';
 import { buildAdPrompt } from '@/lib/prompts/ad';
 import { buildCaptionPrompt } from '@/lib/prompts/caption';
 import { buildPosterPrompt } from '@/lib/prompts/poster';
-import { buildTranscriptPrompt } from '@/lib/prompts/transcript';
+import {
+  buildTranscriptPrompt,
+  buildTranscriptAnalysisPrompt,
+  buildTranscriptPiecePrompt,
+} from '@/lib/prompts/transcript';
+import type { TranscriptFormat } from '@/types';
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(
   request: NextRequest,
@@ -20,7 +25,26 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const { client, topic, tone, typeConfig, inspirationBase64, inspirationMediaType, inspirationUrl } = body;
+    const {
+      client,
+      topic,
+      tone,
+      typeConfig,
+      inspirationBase64,
+      inspirationMediaType,
+      inspirationUrl,
+      // Transcript split-mode fields:
+      transcriptMode,
+      transcriptText,
+      transcriptKeyThemes,
+      transcriptFormat,
+      variationIndex,
+      totalForFormat,
+      // Voice preservation — when generating a carousel from a transcript piece,
+      // pass the source text and a flag so the prompt lifts content verbatim.
+      voicePreservation,
+      sourceText,
+    } = body;
 
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json(
@@ -34,13 +58,16 @@ export async function POST(
 
     // Build the type-specific prompt
     let typePrompt = '';
+    const hasImage = !!inspirationBase64 && !!inspirationMediaType;
     const inspirationDesc = inspirationUrl
       ? `The user provided this URL as inspiration: ${inspirationUrl}`
-      : undefined;
+      : hasImage
+        ? 'The user uploaded a style reference image. Study its visual layout, typography hierarchy, colour palette, spacing, and overall vibe. Match these design choices in your copy structure — mirror how the reference uses headlines vs body text, how much text per slide, and the tone/energy of the writing.'
+        : undefined;
 
     switch (type) {
       case 'carousel':
-        typePrompt = buildCarouselPrompt(typeConfig, inspirationDesc);
+        typePrompt = buildCarouselPrompt(typeConfig, inspirationDesc, voicePreservation, sourceText);
         break;
       case 'reel':
         typePrompt = buildReelPrompt(typeConfig, inspirationDesc);
@@ -61,7 +88,20 @@ export async function POST(
         typePrompt = buildPosterPrompt(typeConfig, inspirationDesc);
         break;
       case 'transcript':
-        typePrompt = buildTranscriptPrompt(typeConfig, inspirationDesc);
+        if (transcriptMode === 'analysis') {
+          typePrompt = buildTranscriptAnalysisPrompt(transcriptText || '', transcriptKeyThemes);
+        } else if (transcriptMode === 'piece') {
+          typePrompt = buildTranscriptPiecePrompt(
+            transcriptText || '',
+            transcriptFormat as TranscriptFormat,
+            Number(variationIndex) || 1,
+            Number(totalForFormat) || 1,
+            transcriptKeyThemes,
+            inspirationDesc
+          );
+        } else {
+          typePrompt = buildTranscriptPrompt(typeConfig, inspirationDesc);
+        }
         break;
       default:
         return NextResponse.json({ error: 'Invalid content type' }, { status: 400 });
@@ -77,7 +117,11 @@ export async function POST(
       }
     }
 
-    const userMessage = `${typePrompt}${toneNote}\n\nTopic / Brief:\n${topic}`;
+    // For transcript split modes the prompt already contains everything; don't append the topic
+    const isTranscriptSplit = type === 'transcript' && (transcriptMode === 'analysis' || transcriptMode === 'piece');
+    const userMessage = isTranscriptSplit
+      ? `${typePrompt}${toneNote}`
+      : `${typePrompt}${toneNote}\n\nTopic / Brief:\n${topic}`;
 
     // Build message content with optional image
     const content: Anthropic.MessageCreateParams['messages'][0]['content'] = [];
@@ -106,9 +150,11 @@ export async function POST(
 
     content.push({ type: 'text', text: userMessage });
 
+    // Tighter token budgets for split mode (one piece is small)
+    const transcriptMaxTokens = transcriptMode === 'analysis' ? 2000 : transcriptMode === 'piece' ? 3000 : 16000;
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
+      max_tokens: type === 'transcript' ? transcriptMaxTokens : 4096,
       system: systemPrompt,
       messages: [{ role: 'user', content }],
     });
@@ -119,8 +165,9 @@ export async function POST(
     return NextResponse.json({ content: generatedText });
   } catch (error) {
     console.error('Generation error:', error);
+    const errMsg = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Something went wrong on our end. Your brief is saved — tap Retry to try again.' },
+      { error: `Something went wrong on our end. Your brief is saved — tap Retry to try again. (${errMsg})` },
       { status: 500 }
     );
   }

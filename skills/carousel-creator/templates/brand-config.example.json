@@ -1,0 +1,26 @@
+{
+  "_comment": "This is an example brand-config.json — the setup wizard will create yours automatically on first run. You can also edit this file directly.",
+  "brand_name": "Your Brand Name",
+  "handle": "@yourhandle",
+  "colors": {
+    "primary": "#396a6b",
+    "secondary": "#f17a51",
+    "accent": "#97d3b4",
+    "background": "#faf9f7",
+    "text": "#2d2d2d"
+  },
+  "fonts": {
+    "headline": "Montserrat",
+    "body": "DM Sans"
+  },
+  "hashtag": "#YourHashtag",
+  "style_inspiration": {
+    "vibe": "Clean & Minimal | Bold & Punchy | Soft & Editorial | Playful & Colourful | Dark & Moody",
+    "notes": "Describe carousel styles you love — accounts you admire, layout preferences, visual elements you're drawn to",
+    "references": ["@exampleaccount1", "@exampleaccount2"]
+  },
+  "voice": {
+    "description": "Describe your brand voice here — e.g., casual and direct, professional but warm, cheeky and irreverent",
+    "banned_phrases": ["game-changer", "unlock", "level up"]
+  }
+}

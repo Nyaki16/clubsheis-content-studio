@@ -252,16 +252,15 @@ export async function POST(request: NextRequest) {
       'Content-Type': 'application/json',
     };
 
-    // Step 1: Create email template
+    // Step 1: Create email template (always HTML — GHL's builder DnD format is proprietary and undocumented)
     const templateName = customName || `${clientName} Newsletter - ${new Date().toLocaleDateString('en-ZA')}`;
-    const isBuilder = editorType === 'builder';
 
     const createRes = await fetch(`${GHL_BASE}/emails/builder`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
         locationId: creds.locationId,
-        type: isBuilder ? 'builder' : 'html',
+        type: 'html',
         name: templateName,
         title: templateName,
         builderVersion: '2',
@@ -284,27 +283,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Ghutte returned no template ID' }, { status: 500 });
     }
 
-    // Step 2: Set content — builder DnD format or raw HTML
+    // Step 2: Set HTML content
     const html = contentToHtml(content, clientName);
 
-    let dataBody: Record<string, unknown>;
-
-    if (isBuilder) {
-      // Send Unlayer-compatible DnD JSON for visual builder
-      const dnd = contentToDndBlocks(content, clientName);
-      dataBody = {
-        locationId: creds.locationId,
-        templateId,
-        updatedBy: 'content-studio',
-        editorType: 'builder',
-        html,
-        design: dnd,
-        dnd: JSON.stringify(dnd),
-        previewText: subjectLine || '',
-        isPlainText: false,
-      };
-    } else {
-      dataBody = {
+    const dataRes = await fetch(`${GHL_BASE}/emails/builder/data`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
         locationId: creds.locationId,
         templateId,
         updatedBy: 'content-studio',
@@ -312,13 +297,7 @@ export async function POST(request: NextRequest) {
         html,
         previewText: subjectLine || '',
         isPlainText: false,
-      };
-    }
-
-    const dataRes = await fetch(`${GHL_BASE}/emails/builder/data`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(dataBody),
+      }),
     });
 
     let previewUrl: string | undefined;
@@ -357,8 +336,8 @@ export async function POST(request: NextRequest) {
       ghlTemplatesUrl,
       previewUrl,
       dataDebug,
-      editorType: isBuilder ? 'builder' : 'code',
-      message: `Template "${templateName}" created in Ghutte as ${isBuilder ? 'Visual Builder' : 'Code Editor'}. Open to review and send.`,
+      editorType: 'html',
+      message: `Template "${templateName}" created in Ghutte. Open to preview and send.`,
     });
   } catch (error) {
     console.error('GHL send error:', error);

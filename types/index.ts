@@ -6,6 +6,7 @@ export interface SelectedClient {
   canvaBrandKitId?: string;
   logoUrl?: string;
   isOwnBrand: boolean;
+  deliverables?: DeliverableProfile[];
 }
 
 export type ContentType =
@@ -43,18 +44,29 @@ export interface InspirationFile {
 // Newsletter
 export interface NewsletterConfig {
   subjectLineAngle: string;
-  sectionCount: number;
   cta: string;
+  ctaUrl: string;
   length: 'short' | 'medium' | 'long';
+  productImages?: { base64: string; name: string; caption?: string }[];
+  style?: 'editorial' | 'product-launch' | 'minimal' | 'bold';
 }
 
 // Carousel
+export interface CarouselImage {
+  base64: string;
+  name: string;
+  usage: 'background' | 'inline';
+  // Pin this image to a specific slide index (0-based). null/undefined = auto-distribute.
+  slideAssignment?: number | null;
+}
+
 export interface CarouselConfig {
   slideCount: number;
   slideFormat: 'tips' | 'story' | 'before-after' | 'how-to' | 'quote';
   ctaSlide: boolean;
   canvaOutput: boolean;
   referenceImages: InspirationFile[];
+  slideImages: CarouselImage[];
 }
 
 // Reel
@@ -98,9 +110,11 @@ export interface CaptionConfig {
 }
 
 // Transcript → Content
+export type TranscriptFormat = 'carousel' | 'reel' | 'caption' | 'newsletter' | 'email' | 'summary';
 export interface TranscriptConfig {
+  transcriptText?: string;
   transcriptFile?: InspirationFile;
-  outputFormats: string[];
+  outputCounts: Partial<Record<TranscriptFormat, number>>;
   keyThemes: string;
 }
 
@@ -125,6 +139,9 @@ export interface GeneratedOutput {
   rawJson?: string;
   contentType: ContentType;
   clientName: string;
+  brandColour?: string;
+  slideImages?: CarouselImage[];
+  productImages?: { base64: string; name: string; caption?: string }[];
 }
 
 export interface CanvaResult {
@@ -133,6 +150,35 @@ export interface CanvaResult {
   thumbnailUrl?: string;
   designId?: string;
   designUrl?: string;
+}
+
+// Deliverable style presets per content type
+export type NewsletterStyle = 'visual-catalogue' | 'copy-minimal' | 'editorial' | 'bold-promo';
+export type CarouselStyle = 'educational' | 'storytelling' | 'quotes' | 'product-showcase';
+export type ReelStyle = 'talk-to-camera' | 'voiceover-broll' | 'text-overlay' | 'trending-audio';
+export type EmailStyle = 'nurture-soft' | 'launch-direct' | 'welcome-warm' | 'post-event';
+export type CaptionStyle = 'conversational' | 'professional' | 'punchy' | 'storytelling';
+export type AdStyle = 'direct-response' | 'brand-awareness' | 'retargeting' | 'ugc-style';
+export type StaticStyle = 'clean-minimal' | 'bold-graphic' | 'photo-heavy' | 'typographic';
+export type TranscriptStyle = 'blog-longform' | 'social-snippets' | 'newsletter-recap';
+
+export type DeliverableStyle =
+  | NewsletterStyle
+  | CarouselStyle
+  | ReelStyle
+  | EmailStyle
+  | CaptionStyle
+  | AdStyle
+  | StaticStyle
+  | TranscriptStyle;
+
+export interface DeliverableProfile {
+  id: string;
+  contentType: ContentType;
+  label: string;
+  frequency?: string;
+  style: DeliverableStyle;
+  notes?: string;
 }
 
 export type DashboardStep = 1 | 2 | 3 | 4;

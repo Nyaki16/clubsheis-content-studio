@@ -32,6 +32,13 @@ export default function RootLayout({
       lang="en"
       className={`${playfairDisplay.variable} ${dmSans.variable} h-full antialiased`}
     >
+      <head>
+        {/* Carousel preview fonts */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;700&family=Montserrat:wght@400;500;600;700;900&family=Oswald:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-cream text-text-primary">
         {children}
       </body>

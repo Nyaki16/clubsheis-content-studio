@@ -1,4 +1,5 @@
 import { CarouselConfig } from '@/types';
+import { VOICE_PRESERVATION_RULES } from './voice-preservation';
 
 const formatLabels: Record<string, string> = {
   'tips': 'Tips / List',
@@ -7,20 +8,6 @@ const formatLabels: Record<string, string> = {
   'how-to': 'How To / Steps',
   'quote': 'Quote-driven',
 };
-
-const VOICE_PRESERVATION_RULES = `# VOICE PRESERVATION MODE — CRITICAL
-
-The text below the brief is a piece written in the speaker's own voice (often lifted from a transcript). You are NOT rewriting it. You are reformatting it into carousel slides.
-
-- Quote, don't rewrite. Lift sentences and phrases verbatim from the source. Do not "improve" them.
-- No AI tells. Avoid "in today's world", "imagine if", "the truth is", "it's not X, it's Y", "let's be real", "buckle up", "scroll-stopping", "game-changer", "unlock", "level up", "here's the thing", "let's talk about". If the speaker doesn't talk like that, do not write like that.
-- Match sentence length and rhythm exactly. If they speak in long winding sentences, keep them long. If they speak in short hits, keep them short.
-- Keep their fillers and quirks when they are part of the voice ("Right?", "You know what I mean?", "Listen…").
-- Preserve the messaging exactly. Do not reframe, soften, or add nuance the speaker did not add.
-- No new claims, examples, statistics, or framings. Everything must come from the source text below.
-- Headlines should be lifted directly from a punchy line in the source — not invented marketing copy.
-- Body text should be the speaker's own sentences in the order they build the argument.
-- UK / South African English (use the speaker's spelling).`;
 
 export function buildCarouselPrompt(
   config: CarouselConfig,

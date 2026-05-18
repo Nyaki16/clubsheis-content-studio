@@ -230,18 +230,16 @@ export default function TranscriptResultsFlow({
 
       const body = {
         client,
-        // For voice-preserved carousels, topic is just a short hint — the actual
-        // copy comes from sourceText, which is the transcript piece in the speaker's voice.
-        topic: piece.format === 'carousel'
-          ? 'Reformat the source text into carousel slides. Keep the speaker\'s voice intact.'
-          : editedBody,
+        // Every voice-preserved format gets the same treatment: topic is a short
+        // hint, sourceText is the transcript piece in the speaker's voice, and
+        // the builder lifts every line directly from that source.
+        topic: `Reformat the source text into a ${piece.format}. Keep the speaker's voice intact — verbatim quotes only.`,
         tone: client.tone,
         typeConfig,
         inspirationBase64,
         inspirationMediaType,
-        // Tell the carousel prompt to lift directly from the transcript piece.
-        voicePreservation: piece.format === 'carousel',
-        sourceText: piece.format === 'carousel' ? editedBody : undefined,
+        voicePreservation: true,
+        sourceText: editedBody,
       };
 
       const res = await fetch(`/api/generate/${endpointType}`, {

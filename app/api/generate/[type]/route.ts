@@ -70,22 +70,22 @@ export async function POST(
         typePrompt = buildCarouselPrompt(typeConfig, inspirationDesc, voicePreservation, sourceText);
         break;
       case 'reel':
-        typePrompt = buildReelPrompt(typeConfig, inspirationDesc);
+        typePrompt = buildReelPrompt(typeConfig, inspirationDesc, voicePreservation, sourceText);
         break;
       case 'newsletter':
-        typePrompt = buildNewsletterPrompt(typeConfig, inspirationDesc);
+        typePrompt = buildNewsletterPrompt(typeConfig, inspirationDesc, voicePreservation, sourceText);
         break;
       case 'email-sequence':
-        typePrompt = buildEmailPrompt(typeConfig, inspirationDesc);
+        typePrompt = buildEmailPrompt(typeConfig, inspirationDesc, voicePreservation, sourceText);
         break;
       case 'ad-creative':
-        typePrompt = buildAdPrompt(typeConfig, inspirationDesc);
+        typePrompt = buildAdPrompt(typeConfig, inspirationDesc, voicePreservation, sourceText);
         break;
       case 'caption':
-        typePrompt = buildCaptionPrompt(typeConfig, inspirationDesc);
+        typePrompt = buildCaptionPrompt(typeConfig, inspirationDesc, voicePreservation, sourceText);
         break;
       case 'static-image':
-        typePrompt = buildPosterPrompt(typeConfig, inspirationDesc);
+        typePrompt = buildPosterPrompt(typeConfig, inspirationDesc, voicePreservation, sourceText);
         break;
       case 'transcript':
         if (transcriptMode === 'analysis') {

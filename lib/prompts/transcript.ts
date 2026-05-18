@@ -1,4 +1,5 @@
 import { TranscriptConfig, TranscriptFormat } from '@/types';
+import { VOICE_PRESERVATION_RULES } from './voice-preservation';
 
 const formatLabels: Record<TranscriptFormat, string> = {
   carousel: 'CAROUSEL',
@@ -24,15 +25,7 @@ const formatBrief: Record<TranscriptFormat, string> = {
     'A summary in the speaker\'s voice — not a corporate executive summary. Use their words. Bullet only if the speaker would.',
 };
 
-const SHARED_RULES = `# RULES FOR REPURPOSING (CRITICAL)
-
-- Quote, don't rewrite. When the speaker has already said it well, lift the sentence verbatim. Do not "improve" it.
-- No AI tells. Avoid "in today's world", "imagine if", "the truth is", "it's not X, it's Y", "let's be real", "buckle up". If the speaker doesn't talk like that, do not write like that.
-- Match sentence length and rhythm. If they speak in long winding sentences, do not chop them into bullet points unless the format demands it. If they speak in short hits, keep it short.
-- Keep their fillers and quirks when they are part of the voice. "Right?" "You know what I mean?" "Listen…" — these are signatures, not problems to fix.
-- Preserve the messaging exactly. Do not reframe the argument. Do not soften it. Do not add nuance the speaker did not add.
-- No new claims, examples, statistics, or framings. Everything must come from the transcript itself.
-- UK / South African English (use the speaker's spelling).`;
+const SHARED_RULES = VOICE_PRESERVATION_RULES;
 
 /**
  * Analysis-only prompt — produces voice analysis, key moments, key insights. No pieces.

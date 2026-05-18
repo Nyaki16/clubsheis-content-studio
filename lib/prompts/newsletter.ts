@@ -92,6 +92,7 @@ Output ONLY a valid JSON object. No markdown, no backticks, no explanation. Raw 
 {
   "subjectLine": "...",
   "preheader": "...",
+  "imageSuggestion": "...",
   "sections": [
     { "type": "hero", "headline": "...", "body": "...", "imageSlot": ${hasImages ? 'null or 1' : 'null'}, "ctaText": null, "ctaUrl": null },
     { "type": "content", "headline": "...", "body": "...", "imageSlot": ${hasImages ? 'null or 2' : 'null'}, "ctaText": null, "ctaUrl": null },
@@ -102,6 +103,7 @@ Output ONLY a valid JSON object. No markdown, no backticks, no explanation. Raw 
 }
 
 JSON rules:
+- imageSuggestion: one or two sentences describing a hero image that would suit the piece — drawn from a real moment, object or scene in the transcript. Describe it, do not generate it. If nothing relevant fits, use an empty string "".
 - Use 2-4 "content" sections between the hero and the cta, as the arc needs.
 - "body" fields hold the prose. Use \\n\\n between paragraphs. Keep paragraphs short.
 - Only the final "cta" section carries ctaText and ctaUrl. Every other section keeps both as null.

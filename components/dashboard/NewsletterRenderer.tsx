@@ -23,6 +23,8 @@ export interface NewsletterData {
   sections: NewsletterSection[];
   signOff: string;
   signOffName: string;
+  /** Optional described-but-not-generated hero image idea. Guidance only — not part of the email HTML. */
+  imageSuggestion?: string;
 }
 
 interface ProductImage {
@@ -232,6 +234,12 @@ export default function NewsletterRenderer({
           <label className="font-ui text-[10px] font-semibold text-text-muted uppercase tracking-wider block mb-0.5">Preheader</label>
           <p className="font-ui text-sm text-text-secondary italic">{data.preheader}</p>
         </div>
+        {data.imageSuggestion && (
+          <div>
+            <label className="font-ui text-[10px] font-semibold text-text-muted uppercase tracking-wider block mb-0.5">Hero Image Idea</label>
+            <p className="font-ui text-sm text-text-secondary">{data.imageSuggestion}</p>
+          </div>
+        )}
       </div>
 
       {/* HTML Email Preview */}
@@ -617,6 +625,12 @@ export default function NewsletterRenderer({
               <p className="font-ui text-[10px] font-semibold text-brown uppercase tracking-wider">Top of email</p>
               <NewsletterField label="Subject line" value={data.subjectLine} onChange={(v) => updateField('subjectLine', v)} />
               <NewsletterField label="Preheader" value={data.preheader} onChange={(v) => updateField('preheader', v)} />
+              <NewsletterField
+                label="Hero image idea"
+                value={data.imageSuggestion || ''}
+                onChange={(v) => updateField('imageSuggestion', v)}
+                multiline
+              />
             </div>
 
             {/* Sections */}

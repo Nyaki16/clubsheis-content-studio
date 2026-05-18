@@ -9,12 +9,10 @@ import {
   TypeSpecificConfig,
   GeneratedOutput,
   CarouselConfig,
-  DeliverableProfile,
 } from '@/types';
-import { getPresetById } from '@/lib/deliverable-presets';
-import ClientSelector from '@/components/dashboard/ClientSelector';
+import { hardcodedClients } from '@/lib/clients';
+import ClientDropdown from '@/components/dashboard/ClientDropdown';
 import ContentTypeGrid from '@/components/dashboard/ContentTypeGrid';
-import ClientDeliverables from '@/components/dashboard/ClientDeliverables';
 import ConfigForm from '@/components/dashboard/ConfigForm';
 import TranscriptStudio from '@/components/dashboard/TranscriptStudio';
 import TranscriptResultsFlow from '@/components/dashboard/TranscriptResultsFlow';
@@ -23,8 +21,11 @@ import OutputPanel from '@/components/dashboard/OutputPanel';
 import SavedContentLibrary, { type SavedItem } from '@/components/dashboard/SavedContentLibrary';
 
 export default function Dashboard() {
-  const [step, setStep] = useState<DashboardStep>(1);
-  const [selectedClient, setSelectedClient] = useState<SelectedClient | null>(null);
+  // The content-type picker is always the starting point. A client is always
+  // selected (default: the first client); switching happens via the top-right
+  // dropdown. Steps: 2 = pick content type, 3 = config, 4 = output.
+  const [step, setStep] = useState<DashboardStep>(2);
+  const [selectedClient, setSelectedClient] = useState<SelectedClient>(hardcodedClients[0]);
   const [selectedType, setSelectedType] = useState<ContentType | null>(null);
   const [generating, setGenerating] = useState(false);
   const [output, setOutput] = useState<GeneratedOutput | null>(null);
@@ -32,8 +33,6 @@ export default function Dashboard() {
 
   const [lastUniversal, setLastUniversal] = useState<UniversalConfig | null>(null);
   const [lastTypeConfig, setLastTypeConfig] = useState<TypeSpecificConfig | null>(null);
-  const [activeDeliverable, setActiveDeliverable] = useState<DeliverableProfile | null>(null);
-  const [showContentTypePicker, setShowContentTypePicker] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
 
   const handleLoadSaved = useCallback((item: SavedItem) => {
@@ -52,34 +51,19 @@ export default function Dashboard() {
     setError(null);
   }, []);
 
-  const handleClientSelect = (client: SelectedClient) => {
+  const handleClientChange = (client: SelectedClient) => {
     setSelectedClient(client);
     setStep(2);
     setSelectedType(null);
-    setActiveDeliverable(null);
-    setShowContentTypePicker(false);
     setOutput(null);
     setError(null);
   };
 
   const handleTypeSelect = (type: ContentType) => {
     setSelectedType(type);
-    setActiveDeliverable(null);
     setStep(3);
     setOutput(null);
     setError(null);
-  };
-
-  const handleDeliverableSelect = (deliverable: DeliverableProfile) => {
-    setActiveDeliverable(deliverable);
-    setSelectedType(deliverable.contentType);
-    setStep(3);
-    setOutput(null);
-    setError(null);
-  };
-
-  const handleUpdateClient = (updated: SelectedClient) => {
-    setSelectedClient(updated);
   };
 
   const handleGenerate = useCallback(
@@ -269,18 +253,6 @@ export default function Dashboard() {
   const handleStartNew = () => {
     setStep(2);
     setSelectedType(null);
-    setActiveDeliverable(null);
-    setShowContentTypePicker(false);
-    setOutput(null);
-    setError(null);
-  };
-
-  const handleChangeClient = () => {
-    setStep(1);
-    setSelectedClient(null);
-    setSelectedType(null);
-    setActiveDeliverable(null);
-    setShowContentTypePicker(false);
     setOutput(null);
     setError(null);
   };
@@ -308,17 +280,7 @@ export default function Dashboard() {
             Library
           </button>
 
-          {selectedClient && (
-            <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-border-light">
-              <span
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: selectedClient.brandColour }}
-              />
-              <span className="font-ui text-sm font-medium text-text-primary">
-                {selectedClient.name}
-              </span>
-            </div>
-          )}
+          <ClientDropdown selectedClient={selectedClient} onSelect={handleClientChange} />
         </div>
       </nav>
 
@@ -337,63 +299,23 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-8">
-          {/* Step 1 */}
+          {/* Step 2: Content Type picker — always the starting point */}
           <section
             className={`transition-all duration-300 ${
-              step > 1 ? 'opacity-50 hover:opacity-100' : ''
+              step > 2 ? 'opacity-50 hover:opacity-100' : ''
             }`}
           >
-            <ClientSelector
-              selectedClient={selectedClient}
-              onSelect={handleClientSelect}
+            <h2 className="font-ui text-xs font-semibold tracking-wider text-text-muted uppercase mb-4">
+              What do you want to build?
+            </h2>
+            <ContentTypeGrid
+              selectedType={selectedType}
+              onSelect={handleTypeSelect}
             />
           </section>
 
-          {/* Step 2: Deliverables or Content Type picker */}
-          {step >= 2 && selectedClient && (
-            <section
-              className={`transition-all duration-300 ${
-                step > 2 ? 'opacity-50 hover:opacity-100' : ''
-              }`}
-            >
-              {showContentTypePicker ? (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="font-ui text-xs font-semibold tracking-wider text-text-muted uppercase">
-                      Content Type
-                    </h2>
-                    {(selectedClient.deliverables?.length ?? 0) > 0 && (
-                      <button
-                        onClick={() => setShowContentTypePicker(false)}
-                        className="font-ui text-xs text-brown hover:text-brown-light transition-colors underline underline-offset-2"
-                      >
-                        Back to deliverables
-                      </button>
-                    )}
-                  </div>
-                  <ContentTypeGrid
-                    selectedType={selectedType}
-                    onSelect={handleTypeSelect}
-                  />
-                </div>
-              ) : (selectedClient.deliverables?.length ?? 0) > 0 ? (
-                <ClientDeliverables
-                  client={selectedClient}
-                  onSelectDeliverable={handleDeliverableSelect}
-                  onUpdateClient={handleUpdateClient}
-                  onPickContentType={() => setShowContentTypePicker(true)}
-                />
-              ) : (
-                <ContentTypeGrid
-                  selectedType={selectedType}
-                  onSelect={handleTypeSelect}
-                />
-              )}
-            </section>
-          )}
-
           {/* Step 3 */}
-          {step === 3 && selectedClient && selectedType && (
+          {step === 3 && selectedType && (
             <section>
               {selectedType === 'transcript' ? (
                 <TranscriptStudio
@@ -406,12 +328,6 @@ export default function Dashboard() {
                   contentType={selectedType}
                   client={selectedClient}
                   onGenerate={handleGenerate}
-                  defaultOverrides={
-                    activeDeliverable
-                      ? getPresetById(activeDeliverable.contentType, activeDeliverable.style)?.defaults
-                      : undefined
-                  }
-                  deliverableNotes={activeDeliverable?.notes}
                 />
               )}
             </section>
@@ -434,21 +350,21 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {output && !generating && selectedClient && (
+              {output && !generating && (
                 <div className="w-full">
                   {output.contentType === 'transcript' ? (
                     <TranscriptResultsFlow
                       output={output}
                       client={selectedClient}
                       onStartNew={handleStartNew}
-                      onChangeClient={handleChangeClient}
+                      onChangeClient={handleStartNew}
                     />
                   ) : (
                     <OutputPanel
                       output={output}
                       onRegenerate={handleRegenerate}
                       onStartNew={handleStartNew}
-                      onChangeClient={handleChangeClient}
+                      onChangeClient={handleStartNew}
                     />
                   )}
                 </div>

@@ -24,6 +24,8 @@ export interface ContentTypeOption {
   label: string;
   description: string;
   icon: string;
+  /** When set, the card links out to this URL in a new tab instead of opening the in-app config. */
+  href?: string;
 }
 
 // Universal fields

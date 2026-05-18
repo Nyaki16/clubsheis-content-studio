@@ -8,7 +8,7 @@ const contentTypes: ContentTypeOption[] = [
   { id: 'reel', label: 'Reel Script', description: 'Short-form video script (30–90s)', icon: 'reel' },
   { id: 'static-image', label: 'Static Image / Poster', description: 'One-frame graphic or announcement', icon: 'static' },
   { id: 'email-sequence', label: 'Email Sequence', description: 'Multi-email nurture or launch sequence', icon: 'email' },
-  { id: 'ad-creative', label: 'Ad Creative', description: 'Paid ad copy + concept', icon: 'ad' },
+  { id: 'ad-creative', label: 'Ad Studio', description: 'Brand-matched static ads — opens Ad Studio', icon: 'ad', href: 'https://static-ad-studio.vercel.app' },
   { id: 'caption', label: 'Caption / Social Post', description: 'Single platform social post', icon: 'caption' },
   { id: 'transcript', label: 'Transcript → Content', description: 'Repurpose a transcript into multiple formats', icon: 'transcript' },
 ];
@@ -83,39 +83,54 @@ export default function ContentTypeGrid({ selectedType, onSelect }: Props) {
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {contentTypes.map((ct) => (
-          <button
-            key={ct.id}
-            onClick={() => onSelect(ct.id)}
-            className={`text-left p-5 rounded-xl border transition-all duration-200 hover:shadow-md group ${
-              selectedType === ct.id
-                ? 'bg-brown text-white border-brown shadow-md'
-                : 'bg-white border-border-light hover:border-border'
-            }`}
-          >
-            <div
-              className={`mb-3 ${
-                selectedType === ct.id
-                  ? 'text-white/80'
-                  : 'text-text-muted group-hover:text-brown'
-              }`}
-            >
-              <ContentIcon type={ct.icon} />
-            </div>
-            <h3 className={`font-ui font-semibold text-sm mb-0.5 ${
-              selectedType === ct.id ? 'text-white' : 'text-text-primary'
-            }`}>
-              {ct.label}
-            </h3>
-            <p
-              className={`font-ui text-xs ${
-                selectedType === ct.id ? 'text-white/60' : 'text-text-muted'
-              }`}
-            >
-              {ct.description}
-            </p>
-          </button>
-        ))}
+        {contentTypes.map((ct) => {
+          const isSelected = !ct.href && selectedType === ct.id;
+          const cardClass = `text-left p-5 rounded-xl border transition-all duration-200 hover:shadow-md group block ${
+            isSelected
+              ? 'bg-brown text-white border-brown shadow-md'
+              : 'bg-white border-border-light hover:border-border'
+          }`;
+          const inner = (
+            <>
+              <div
+                className={`mb-3 flex items-center gap-1 ${
+                  isSelected ? 'text-white/80' : 'text-text-muted group-hover:text-brown'
+                }`}
+              >
+                <ContentIcon type={ct.icon} />
+                {ct.href && (
+                  <svg className="w-3.5 h-3.5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M14 5h5v5m0-5L10 14M9 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-3" />
+                  </svg>
+                )}
+              </div>
+              <h3
+                className={`font-ui font-semibold text-sm mb-0.5 ${
+                  isSelected ? 'text-white' : 'text-text-primary'
+                }`}
+              >
+                {ct.label}
+              </h3>
+              <p
+                className={`font-ui text-xs ${
+                  isSelected ? 'text-white/60' : 'text-text-muted'
+                }`}
+              >
+                {ct.description}
+              </p>
+            </>
+          );
+
+          return ct.href ? (
+            <a key={ct.id} href={ct.href} target="_blank" rel="noopener noreferrer" className={cardClass}>
+              {inner}
+            </a>
+          ) : (
+            <button key={ct.id} onClick={() => onSelect(ct.id)} className={cardClass}>
+              {inner}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

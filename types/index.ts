@@ -14,7 +14,7 @@ export type ContentType =
   | 'carousel'
   | 'reel'
   | 'static-image'
-  | 'email-sequence'
+  | 'video-animation'
   | 'ad-creative'
   | 'caption'
   | 'transcript';
@@ -87,12 +87,58 @@ export interface StaticImageConfig {
   canvaOutput: boolean;
 }
 
-// Email Sequence
-export interface EmailSequenceConfig {
-  sequenceGoal: 'nurture' | 'launch' | 'welcome' | 're-engagement' | 'post-webinar';
-  emailCount: number;
-  sendCadence: string;
-  offer: string;
+// Video Animation (Remotion)
+export type VideoAspectRatio = '9:16' | '1:1' | '16:9' | '4:5';
+
+export interface VideoColors {
+  background: string;
+  primaryText: string;
+  accent: string;
+  emphasis: string;
+}
+
+export interface VideoAnimationConfig {
+  aspectRatio: VideoAspectRatio;
+  durationSeconds: number;
+  colors: VideoColors;
+}
+
+export type VideoSceneTemplate =
+  | 'title'
+  | 'flowchart'
+  | 'stat'
+  | 'iconGrid'
+  | 'diagram'
+  | 'particles';
+
+export interface VideoSceneStat {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  label: string;
+}
+
+export interface VideoSceneItem {
+  icon: string;
+  label: string;
+}
+
+export interface VideoScene {
+  template: VideoSceneTemplate;
+  eyebrow?: string;
+  headline: string;
+  body: string;
+  cta?: string;
+  steps?: string[];
+  items?: VideoSceneItem[];
+  stat?: VideoSceneStat;
+  diagram?: { centerLabel: string; nodes: string[] };
+  visualNote?: string;
+}
+
+export interface VideoScript {
+  title: string;
+  scenes: VideoScene[];
 }
 
 // Ad Creative
@@ -125,7 +171,6 @@ export type TypeSpecificConfig =
   | { type: 'carousel'; config: CarouselConfig }
   | { type: 'reel'; config: ReelConfig }
   | { type: 'static-image'; config: StaticImageConfig }
-  | { type: 'email-sequence'; config: EmailSequenceConfig }
   | { type: 'ad-creative'; config: AdCreativeConfig }
   | { type: 'caption'; config: CaptionConfig }
   | { type: 'transcript'; config: TranscriptConfig };
@@ -158,7 +203,7 @@ export interface CanvaResult {
 export type NewsletterStyle = 'visual-catalogue' | 'copy-minimal' | 'editorial' | 'bold-promo';
 export type CarouselStyle = 'educational' | 'storytelling' | 'quotes' | 'product-showcase';
 export type ReelStyle = 'talk-to-camera' | 'voiceover-broll' | 'text-overlay' | 'trending-audio';
-export type EmailStyle = 'nurture-soft' | 'launch-direct' | 'welcome-warm' | 'post-event';
+export type VideoStyle = 'explainer' | 'promo' | 'tutorial' | 'data-story';
 export type CaptionStyle = 'conversational' | 'professional' | 'punchy' | 'storytelling';
 export type AdStyle = 'direct-response' | 'brand-awareness' | 'retargeting' | 'ugc-style';
 export type StaticStyle = 'clean-minimal' | 'bold-graphic' | 'photo-heavy' | 'typographic';
@@ -168,7 +213,7 @@ export type DeliverableStyle =
   | NewsletterStyle
   | CarouselStyle
   | ReelStyle
-  | EmailStyle
+  | VideoStyle
   | CaptionStyle
   | AdStyle
   | StaticStyle

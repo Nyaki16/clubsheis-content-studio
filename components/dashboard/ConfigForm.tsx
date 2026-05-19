@@ -11,7 +11,6 @@ import {
   CarouselConfig,
   ReelConfig,
   StaticImageConfig,
-  EmailSequenceConfig,
   AdCreativeConfig,
   CaptionConfig,
   TranscriptConfig,
@@ -167,36 +166,6 @@ function TextField({
   );
 }
 
-function NumberField({
-  label,
-  value,
-  onChange,
-  min,
-  max,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
-}) {
-  return (
-    <div>
-      <label className="font-ui text-xs font-semibold text-text-muted uppercase tracking-wide mb-2 block">
-        {label}
-      </label>
-      <input
-        type="number"
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        min={min}
-        max={max}
-        className="w-24 px-4 py-3 border border-border-light rounded-xl font-ui text-sm focus:outline-none focus:border-brown focus:ring-1 focus:ring-brown/20 bg-white"
-      />
-    </div>
-  );
-}
-
 function MultiSelect({
   label,
   options,
@@ -248,21 +217,22 @@ function getDefaultConfig(type: ContentType): TypeSpecificConfig {
       return { type: 'reel', config: { duration: '30', hookStyle: 'bold-statement', format: 'talk-to-camera', platform: 'instagram' } };
     case 'static-image':
       return { type: 'static-image', config: { imagePurpose: 'announcement', format: '4:5', textToFeature: '', canvaOutput: false } };
-    case 'email-sequence':
-      return { type: 'email-sequence', config: { sequenceGoal: 'nurture', emailCount: 5, sendCadence: 'Day 0, Day 2, Day 4, Day 7, Day 10', offer: '' } };
     case 'ad-creative':
       return { type: 'ad-creative', config: { platforms: ['facebook'], adFormat: 'single-image', objective: 'lead-gen', variationCount: 3 } };
     case 'caption':
       return { type: 'caption', config: { platform: 'instagram', postType: 'informational', includeHashtags: true, includeCta: true } };
     case 'transcript':
       return { type: 'transcript', config: { transcriptText: '', outputCounts: { carousel: 1, caption: 1 }, keyThemes: '' } };
+    default:
+      // video-animation is handled by its own studio flow, not ConfigForm
+      return { type: 'newsletter', config: { subjectLineAngle: '', cta: '', ctaUrl: '', length: 'medium' } };
   }
 }
 
 // Only saved/uploaded brand voices appear — no hardcoded list
 
 // Content types that don't need inspiration images
-const NO_INSPIRATION_TYPES: ContentType[] = ['newsletter', 'email-sequence', 'transcript', 'carousel', 'caption', 'ad-creative', 'reel', 'static-image'];
+const NO_INSPIRATION_TYPES: ContentType[] = ['newsletter', 'transcript', 'carousel', 'caption', 'ad-creative', 'reel', 'static-image'];
 
 function HookSuggestField({
   label,
@@ -1092,17 +1062,6 @@ export default function ConfigForm({ contentType, client, onGenerate, defaultOve
             <RadioGroup label="Format" options={[{ value: '1:1', label: 'Square (1:1)' }, { value: '4:5', label: 'Portrait (4:5)' }, { value: '9:16', label: 'Story (9:16)' }, { value: '16:9', label: 'Landscape (16:9)' }]} value={c.format} onChange={(v) => updateConfig({ format: v as StaticImageConfig['format'] })} />
             <TextField label="Text to feature" value={c.textToFeature} onChange={(v) => updateConfig({ textToFeature: v })} placeholder="Paste the exact headline or quote you want on this image" multiline />
             {/* Canva integration removed */}
-          </div>
-        );
-      }
-      case 'email-sequence': {
-        const c = typeConfig.config as EmailSequenceConfig;
-        return (
-          <div className="space-y-5">
-            <RadioGroup label="Sequence goal" options={[{ value: 'nurture', label: 'Nurture / educate' }, { value: 'launch', label: 'Launch / sell' }, { value: 'welcome', label: 'Welcome / onboard' }, { value: 're-engagement', label: 'Re-engagement' }, { value: 'post-webinar', label: 'Post-webinar follow-up' }]} value={c.sequenceGoal} onChange={(v) => updateConfig({ sequenceGoal: v as EmailSequenceConfig['sequenceGoal'] })} />
-            <NumberField label="Number of emails" value={c.emailCount} onChange={(v) => updateConfig({ emailCount: v })} min={2} max={10} />
-            <TextField label="Send cadence" value={c.sendCadence} onChange={(v) => updateConfig({ sendCadence: v })} placeholder="e.g. Day 0, Day 2, Day 4, Day 7" />
-            <TextField label="Offer / CTA" value={c.offer} onChange={(v) => updateConfig({ offer: v })} placeholder="What is the email sequence selling or driving toward?" />
           </div>
         );
       }

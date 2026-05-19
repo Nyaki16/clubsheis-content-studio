@@ -184,53 +184,6 @@ export default function OutputPanel({
 
   const isCarousel = output.contentType === 'carousel' && carouselSlides !== null;
 
-  // Parse email sequence from JSON output
-  interface ParsedEmail {
-    emailNumber: number;
-    sendDay: string;
-    subjectLine: string;
-    preheader: string;
-    body: string;
-    cta: string;
-  }
-
-  const parsedEmails = useMemo<ParsedEmail[] | null>(() => {
-    if (output.contentType !== 'email-sequence') return null;
-    // Try parsing from rawJson first
-    const source = output.rawJson || output.content;
-    try {
-      // Try to extract JSON array from the content (may have markdown wrapping)
-      let jsonStr = source;
-      const jsonMatch = source.match(/\[[\s\S]*\]/);
-      if (jsonMatch) jsonStr = jsonMatch[0];
-      const parsed = JSON.parse(jsonStr);
-      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].subjectLine) {
-        return parsed as ParsedEmail[];
-      }
-    } catch {
-      // Not JSON — try parsing the plain text format
-      const emails: ParsedEmail[] = [];
-      const emailBlocks = source.split(/EMAIL\s+\d+/i).filter(b => b.trim());
-      for (let i = 0; i < emailBlocks.length; i++) {
-        const block = emailBlocks[i];
-        const subject = block.match(/Subject\s*(?:line)?:\s*(.+)/i)?.[1]?.trim() || '';
-        const preview = block.match(/(?:Preview\s*text|Preheader|Pre-header):\s*(.+)/i)?.[1]?.trim() || '';
-        const cta = block.match(/CTA:\s*(.+)/i)?.[1]?.trim() || '';
-        const sendDay = block.match(/Send\s*day:\s*(.+)/i)?.[1]?.trim() || `Day ${i * 2}`;
-        // Body is everything between "Body:" and "CTA:"
-        const bodyMatch = block.match(/Body:\s*([\s\S]*?)(?=CTA:|$)/i);
-        const body = bodyMatch ? bodyMatch[1].trim() : block.replace(/Subject.*\n|Preview.*\n|Send.*\n|CTA:.*$/gim, '').trim();
-        if (subject || body) {
-          emails.push({ emailNumber: i + 1, sendDay, subjectLine: subject, preheader: preview, body, cta });
-        }
-      }
-      return emails.length > 0 ? emails : null;
-    }
-    return null;
-  }, [output.contentType, output.rawJson, output.content]);
-
-  const isEmailSequence = output.contentType === 'email-sequence' && parsedEmails !== null && parsedEmails.length > 0;
-
   // Parse newsletter from JSON output
   const parsedNewsletter = useMemo<NewsletterData | null>(() => {
     if (output.contentType !== 'newsletter') return null;
@@ -291,9 +244,6 @@ export default function OutputPanel({
 
   const isTranscriptOutput = output.contentType === 'transcript' && parsedTranscript !== null;
   const [copiedPieceIdx, setCopiedPieceIdx] = useState<number | null>(null);
-
-  // Email sequence state
-  const [activeEmailIdx, setActiveEmailIdx] = useState(0);
 
   // Reset approval and populate review slides when new output arrives
   useEffect(() => {
@@ -568,7 +518,7 @@ Output ONLY the caption text, nothing else. No labels, no quotes, no explanation
       ? generatedSlideImages
       : undefined;
 
-  const showGhlButton = ['newsletter', 'email-sequence'].includes(output.contentType);
+  const showGhlButton = output.contentType === 'newsletter';
   const defaultSubject = extractSubjectLine(displayContent);
 
   return (
@@ -1094,96 +1044,6 @@ Output ONLY the caption text, nothing else. No labels, no quotes, no explanation
               {carouselTextContent}
             </div>
           </details>
-        </div>
-      ) : isEmailSequence && parsedEmails ? (
-        /* ===== EMAIL SEQUENCE — individual email cards ===== */
-        <div id="output-content" className="space-y-4">
-          {/* Email tabs */}
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {parsedEmails.map((email, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveEmailIdx(idx)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full font-ui text-xs font-semibold transition-all ${
-                  activeEmailIdx === idx
-                    ? 'bg-brown text-white'
-                    : 'bg-cream border border-border-light text-text-secondary hover:border-brown/40'
-                }`}
-              >
-                Email {email.emailNumber}
-                <span className="ml-1.5 opacity-60">{email.sendDay}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Active email card */}
-          {(() => {
-            const email = parsedEmails[activeEmailIdx];
-            return (
-              <div className="bg-white rounded-2xl border border-border-light overflow-hidden">
-                {/* Subject & Preheader header */}
-                <div className="bg-cream/80 border-b border-border-light px-6 py-4 space-y-3">
-                  <div>
-                    <label className="font-ui text-[10px] font-semibold text-text-muted uppercase tracking-wider block mb-1">Subject Line</label>
-                    <p className="font-display text-lg font-bold text-text-primary leading-snug">{email.subjectLine}</p>
-                  </div>
-                  <div>
-                    <label className="font-ui text-[10px] font-semibold text-text-muted uppercase tracking-wider block mb-1">Preheader</label>
-                    <p className="font-ui text-sm text-text-secondary italic">{email.preheader}</p>
-                  </div>
-                  <div className="flex items-center gap-4 pt-1">
-                    <span className="font-ui text-[10px] px-2.5 py-1 rounded-full bg-brown/10 text-brown font-semibold">{email.sendDay}</span>
-                    <span className="font-ui text-[10px] text-text-muted">Email {email.emailNumber} of {parsedEmails.length}</span>
-                  </div>
-                </div>
-
-                {/* Body */}
-                <div className="px-6 py-5">
-                  <div
-                    className={`font-body text-base leading-relaxed whitespace-pre-wrap text-text-primary ${editMode ? 'ring-2 ring-brown/30 rounded-lg p-2' : ''}`}
-                    contentEditable={editMode}
-                    suppressContentEditableWarning
-                  >
-                    {email.body}
-                  </div>
-                </div>
-
-                {/* CTA footer */}
-                {email.cta && (
-                  <div className="border-t border-border-light px-6 py-4 bg-cream/40">
-                    <label className="font-ui text-[10px] font-semibold text-text-muted uppercase tracking-wider block mb-1.5">Call to Action</label>
-                    <div className="inline-block px-6 py-2.5 rounded-full font-ui text-sm font-semibold text-white" style={{ backgroundColor: output.brandColour || '#7B4B2A' }}>
-                      {email.cta}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-
-          {/* Navigation */}
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setActiveEmailIdx(Math.max(0, activeEmailIdx - 1))}
-              disabled={activeEmailIdx === 0}
-              className="flex items-center gap-1 font-ui text-xs font-semibold text-brown disabled:text-text-muted disabled:opacity-40 hover:opacity-80 transition-opacity"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Previous Email
-            </button>
-            <button
-              onClick={() => setActiveEmailIdx(Math.min(parsedEmails.length - 1, activeEmailIdx + 1))}
-              disabled={activeEmailIdx === parsedEmails.length - 1}
-              className="flex items-center gap-1 font-ui text-xs font-semibold text-brown disabled:text-text-muted disabled:opacity-40 hover:opacity-80 transition-opacity"
-            >
-              Next Email
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
         </div>
       ) : isHtmlNewsletter && parsedNewsletter ? (
         /* ===== HTML NEWSLETTER — styled email preview ===== */

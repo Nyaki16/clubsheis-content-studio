@@ -27,7 +27,7 @@ const TYPE_LABELS: Record<string, string> = {
   carousel: 'Carousel',
   reel: 'Reel',
   'static-image': 'Static',
-  'email-sequence': 'Email Sequence',
+  'video-animation': 'Video Animation',
   'ad-creative': 'Ad',
   caption: 'Caption',
   transcript: 'Transcript',

@@ -11,6 +11,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
     "@google/genai": "^1.48.0",
+    "@remotion/player": "^4.0.463",
+    "@remotion/transitions": "^4.0.463",
     "@supabase/supabase-js": "^2.101.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
@@ -18,7 +20,8 @@
     "next": "16.2.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-dropzone": "^15.0.0"
+    "react-dropzone": "^15.0.0",
+    "remotion": "^4.0.463"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -4,7 +4,7 @@ import { buildUniversalSystemPrompt } from '@/lib/prompts/system';
 import { buildCarouselPrompt } from '@/lib/prompts/carousel';
 import { buildReelPrompt } from '@/lib/prompts/reel';
 import { buildNewsletterPrompt } from '@/lib/prompts/newsletter';
-import { buildEmailPrompt } from '@/lib/prompts/email';
+import { buildVideoScriptPrompt } from '@/lib/prompts/video';
 import { buildAdPrompt } from '@/lib/prompts/ad';
 import { buildCaptionPrompt } from '@/lib/prompts/caption';
 import { buildPosterPrompt } from '@/lib/prompts/poster';
@@ -75,8 +75,8 @@ export async function POST(
       case 'newsletter':
         typePrompt = buildNewsletterPrompt(typeConfig, inspirationDesc, voicePreservation, sourceText);
         break;
-      case 'email-sequence':
-        typePrompt = buildEmailPrompt(typeConfig, inspirationDesc, voicePreservation, sourceText);
+      case 'video-animation':
+        typePrompt = buildVideoScriptPrompt(typeConfig);
         break;
       case 'ad-creative':
         typePrompt = buildAdPrompt(typeConfig, inspirationDesc, voicePreservation, sourceText);

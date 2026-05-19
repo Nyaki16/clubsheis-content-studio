@@ -16,6 +16,7 @@ import ContentTypeGrid from '@/components/dashboard/ContentTypeGrid';
 import ConfigForm from '@/components/dashboard/ConfigForm';
 import TranscriptStudio from '@/components/dashboard/TranscriptStudio';
 import TranscriptResultsFlow from '@/components/dashboard/TranscriptResultsFlow';
+import VideoAnimationStudio from '@/components/video/VideoAnimationStudio';
 import LoadingState from '@/components/dashboard/LoadingState';
 import OutputPanel from '@/components/dashboard/OutputPanel';
 import SavedContentLibrary, { type SavedItem } from '@/components/dashboard/SavedContentLibrary';
@@ -321,6 +322,11 @@ export default function Dashboard() {
                 <TranscriptStudio
                   client={selectedClient}
                   onGenerate={handleGenerate}
+                  onBack={handleStartNew}
+                />
+              ) : selectedType === 'video-animation' ? (
+                <VideoAnimationStudio
+                  client={selectedClient}
                   onBack={handleStartNew}
                 />
               ) : (

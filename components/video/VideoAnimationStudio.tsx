@@ -393,6 +393,8 @@ export default function VideoAnimationStudio({ client, onBack }: Props) {
   }));
   const [script, setScript] = useState<VideoScript | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [rendering, setRendering] = useState(false);
+  const [renderError, setRenderError] = useState<string | null>(null);
 
   const dims = RATIO_DIMS[aspectRatio];
   const previewStyle = useMemo(() => {
@@ -435,6 +437,37 @@ export default function VideoAnimationStudio({ client, onBack }: Props) {
   const updateScene = (index: number, next: VideoScene) => {
     if (!script) return;
     setScript({ ...script, scenes: script.scenes.map((s, i) => (i === index ? next : s)) });
+  };
+
+  const downloadVideo = async () => {
+    if (!script) return;
+    setRendering(true);
+    setRenderError(null);
+    try {
+      const res = await fetch('/api/render-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ script, colors, aspectRatio, durationSeconds }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Render failed (${res.status}).`);
+      }
+      const blob = await res.blob();
+      const slug = script.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'video';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${slug}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setRenderError(err instanceof Error ? err.message : 'Render failed.');
+    } finally {
+      setRendering(false);
+    }
   };
 
   /* ----- config phase ----- */
@@ -623,22 +656,53 @@ export default function VideoAnimationStudio({ client, onBack }: Props) {
             />
           </div>
           <p className="font-ui text-xs text-text-muted mt-4 text-center max-w-md">
-            Rendered live with Remotion. Use the player controls to scrub, play, and check the safe zones.
+            Rendered live with Remotion. Use the player controls to scrub, then download the MP4 to take it into your editor.
           </p>
         </div>
+
+        {renderError && (
+          <div className="bg-white border border-red/30 rounded-xl px-4 py-3">
+            <p className="font-ui text-sm text-red">{renderError}</p>
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             type="button"
+            onClick={downloadVideo}
+            disabled={rendering}
+            className="flex-1 py-3 bg-brown text-white font-ui font-semibold rounded-full hover:bg-brown-light transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+          >
+            {rendering ? (
+              <>
+                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
+                  <path d="M12 2a10 10 0 0110 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                </svg>
+                Rendering MP4… (first run ~60s)
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Download MP4
+              </>
+            )}
+          </button>
+          <button
+            type="button"
             onClick={() => setPhase('script')}
-            className="flex-1 py-3 bg-white border border-border-light text-text-secondary font-ui font-semibold rounded-full hover:border-brown hover:text-brown transition-colors"
+            disabled={rendering}
+            className="flex-1 py-3 bg-white border border-border-light text-text-secondary font-ui font-semibold rounded-full hover:border-brown hover:text-brown transition-colors disabled:opacity-60"
           >
             Edit script
           </button>
           <button
             type="button"
             onClick={onBack}
-            className="flex-1 py-3 bg-brown text-white font-ui font-semibold rounded-full hover:bg-brown-light transition-colors"
+            disabled={rendering}
+            className="flex-1 py-3 bg-white border border-border-light text-text-secondary font-ui font-semibold rounded-full hover:border-brown hover:text-brown transition-colors disabled:opacity-60"
           >
             Start new
           </button>

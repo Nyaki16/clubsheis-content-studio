@@ -395,6 +395,7 @@ export default function VideoAnimationStudio({ client, onBack }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [rendering, setRendering] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
+  const [renderElapsed, setRenderElapsed] = useState(0);
 
   const dims = RATIO_DIMS[aspectRatio];
   const previewStyle = useMemo(() => {
@@ -443,17 +444,50 @@ export default function VideoAnimationStudio({ client, onBack }: Props) {
     if (!script) return;
     setRendering(true);
     setRenderError(null);
+    setRenderElapsed(0);
+    const startedAt = Date.now();
+    const tick = setInterval(() => {
+      setRenderElapsed(Math.round((Date.now() - startedAt) / 1000));
+    }, 1000);
+
     try {
-      const res = await fetch('/api/render-video', {
+      // Kick off the render job.
+      const startRes = await fetch('/api/render-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ script, colors, aspectRatio, durationSeconds }),
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Render failed (${res.status}).`);
+      if (!startRes.ok) {
+        const data = await startRes.json().catch(() => ({}));
+        throw new Error(data.error || `Failed to start render (${startRes.status}).`);
       }
-      const blob = await res.blob();
+      const { jobId } = await startRes.json();
+      if (!jobId) throw new Error('No jobId returned from server.');
+
+      // Poll until ready or error (8-minute safety cap).
+      const TIMEOUT_MS = 8 * 60 * 1000;
+      while (true) {
+        await new Promise((r) => setTimeout(r, 4000));
+        const sRes = await fetch(`/api/render-video?jobId=${encodeURIComponent(jobId)}`);
+        if (!sRes.ok) {
+          const d = await sRes.json().catch(() => ({}));
+          throw new Error(d.error || `Status check failed (${sRes.status}).`);
+        }
+        const status = await sRes.json();
+        if (status.status === 'ready') break;
+        if (status.status === 'error') throw new Error(status.error || 'Render failed.');
+        if (Date.now() - startedAt > TIMEOUT_MS) {
+          throw new Error('Render timed out after 8 minutes.');
+        }
+      }
+
+      // Pull the file.
+      const dRes = await fetch(`/api/render-video?jobId=${encodeURIComponent(jobId)}&download=1`);
+      if (!dRes.ok) {
+        const d = await dRes.json().catch(() => ({}));
+        throw new Error(d.error || `Download failed (${dRes.status}).`);
+      }
+      const blob = await dRes.blob();
       const slug = script.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'video';
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -466,7 +500,9 @@ export default function VideoAnimationStudio({ client, onBack }: Props) {
     } catch (err) {
       setRenderError(err instanceof Error ? err.message : 'Render failed.');
     } finally {
+      clearInterval(tick);
       setRendering(false);
+      setRenderElapsed(0);
     }
   };
 
@@ -679,7 +715,7 @@ export default function VideoAnimationStudio({ client, onBack }: Props) {
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
                   <path d="M12 2a10 10 0 0110 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
                 </svg>
-                Rendering MP4… (first run ~60s)
+                Rendering MP4… {renderElapsed}s
               </>
             ) : (
               <>

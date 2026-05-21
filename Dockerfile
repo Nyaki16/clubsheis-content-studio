@@ -41,6 +41,10 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
+# Pre-bundle the Remotion composition so the running container doesn't need
+# to spin up webpack at first render (~200 MB peak memory + 30 s saved).
+RUN node scripts/build-remotion-bundle.mjs
+
 # Render injects PORT. Default to 3000 if running outside Render.
 ENV PORT=3000
 EXPOSE 3000

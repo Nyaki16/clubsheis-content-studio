@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import os from 'os';
 import { randomUUID } from 'crypto';
-import { readFile, mkdir, unlink } from 'fs/promises';
+import { readFile, mkdir, unlink, stat } from 'fs/promises';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -14,6 +14,17 @@ let cachedBundle: Promise<string> | null = null;
 async function getBundle(): Promise<string> {
   if (!cachedBundle) {
     cachedBundle = (async () => {
+      // Prefer the pre-bundled directory produced at Docker build time
+      // (scripts/build-remotion-bundle.mjs). Saves ~30 s + ~200 MB peak
+      // memory at first render.
+      const prebuilt = path.join(process.cwd(), 'remotion-bundle');
+      try {
+        const s = await stat(prebuilt);
+        if (s.isDirectory()) return prebuilt;
+      } catch {
+        // No prebuilt bundle — fall through to dynamic bundling (dev mode).
+      }
+
       const { bundle } = await import('@remotion/bundler');
       return bundle({
         entryPoint: path.join(process.cwd(), 'remotion', 'index.ts'),

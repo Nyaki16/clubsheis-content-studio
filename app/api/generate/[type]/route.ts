@@ -153,7 +153,7 @@ export async function POST(
     // Tighter token budgets for split mode (one piece is small)
     const transcriptMaxTokens = transcriptMode === 'analysis' ? 2000 : transcriptMode === 'piece' ? 3000 : 16000;
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: type === 'transcript' ? transcriptMaxTokens : 4096,
       system: systemPrompt,
       messages: [{ role: 'user', content }],

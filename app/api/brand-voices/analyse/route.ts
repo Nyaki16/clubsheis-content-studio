@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1500,
       system: `You are a brand voice analyst. You study writing samples and extract a precise, actionable brand voice profile that another AI can use to replicate the voice perfectly.
 

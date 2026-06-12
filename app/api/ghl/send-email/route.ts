@@ -4,26 +4,36 @@ import { getSupabase } from '@/lib/supabase';
 const GHL_BASE = 'https://services.leadconnectorhq.com';
 const GHL_VERSION = '2021-07-28';
 
-// Client → GHL location mapping
-const CLIENT_LOCATIONS: Record<string, { locationId: string; pitKey: string }> = {
-  'clubsheis': { locationId: 'AkhI3DXZ01YFKLGXfg2V', pitKey: 'pit-572b13e1-ccf9-4ea5-8746-01545c7a704a' },
-  'club-she-is': { locationId: 'AkhI3DXZ01YFKLGXfg2V', pitKey: 'pit-572b13e1-ccf9-4ea5-8746-01545c7a704a' },
-  'wisdom-wellness': { locationId: 'OgSu08WcrumYq4ZHcoHp', pitKey: 'pit-422da6d8-dfb5-4c92-a414-275f708cd4ee' },
-  'link-interiors': { locationId: '9FSp4QLrs63jpzugi2NL', pitKey: 'pit-7a3af52d-0072-481d-b7e9-beb45a64ae55' },
-  'awahome': { locationId: 'GWAnJQeAJSENicSyGKDC', pitKey: 'pit-2a6fa1c8-b07e-468a-b71c-066d4dda4b05' },
-  'palesa-dooms': { locationId: 'NDVeEcaieSYrPqxiBRxD', pitKey: 'pit-0d6af12a-d7ec-4d52-ad06-aab2c7f861ac' },
-  'purpose-for-impact': { locationId: 'P2GxuKbjPEU0kQlXrCqf', pitKey: 'pit-f47204f7-4e8d-4d87-8d21-789a09446bdb' },
-  'sibulele-sibaca': { locationId: 'P2GxuKbjPEU0kQlXrCqf', pitKey: 'pit-f47204f7-4e8d-4d87-8d21-789a09446bdb' },
+// Client → GHL location mapping. Credentials live in env vars (.env.local / Vercel),
+// keyed per GHL account. Aliases (e.g. club-she-is, sibulele-sibaca) share an account.
+const CLIENT_LOCATIONS: Record<string, { locationId?: string; pitKey?: string }> = {
+  'clubsheis': { locationId: process.env.GHL_LOCATION_ID_CLUBSHEIS, pitKey: process.env.GHL_PIT_KEY_CLUBSHEIS },
+  'club-she-is': { locationId: process.env.GHL_LOCATION_ID_CLUBSHEIS, pitKey: process.env.GHL_PIT_KEY_CLUBSHEIS },
+  'wisdom-wellness': { locationId: process.env.GHL_LOCATION_ID_WISDOM_WELLNESS, pitKey: process.env.GHL_PIT_KEY_WISDOM_WELLNESS },
+  'link-interiors': { locationId: process.env.GHL_LOCATION_ID_LINK_INTERIORS, pitKey: process.env.GHL_PIT_KEY_LINK_INTERIORS },
+  'awahome': { locationId: process.env.GHL_LOCATION_ID_AWAHOME, pitKey: process.env.GHL_PIT_KEY_AWAHOME },
+  'palesa-dooms': { locationId: process.env.GHL_LOCATION_ID_PALESA_DOOMS, pitKey: process.env.GHL_PIT_KEY_PALESA_DOOMS },
+  'purpose-for-impact': { locationId: process.env.GHL_LOCATION_ID_PURPOSE_FOR_IMPACT, pitKey: process.env.GHL_PIT_KEY_PURPOSE_FOR_IMPACT },
+  'sibulele-sibaca': { locationId: process.env.GHL_LOCATION_ID_PURPOSE_FOR_IMPACT, pitKey: process.env.GHL_PIT_KEY_PURPOSE_FOR_IMPACT },
 };
+
+function resolveCreds(entry: { locationId?: string; pitKey?: string } | undefined, matchedKey: string) {
+  if (!entry) return null;
+  if (!entry.locationId || !entry.pitKey) {
+    console.error(`GHL env vars missing for client "${matchedKey}" — check GHL_LOCATION_ID_* / GHL_PIT_KEY_* configuration`);
+    return null;
+  }
+  return { locationId: entry.locationId, pitKey: entry.pitKey };
+}
 
 function findGhlCredentials(clientId: string, clientName: string) {
   // Try direct match on clientId
-  if (CLIENT_LOCATIONS[clientId]) return CLIENT_LOCATIONS[clientId];
+  if (CLIENT_LOCATIONS[clientId]) return resolveCreds(CLIENT_LOCATIONS[clientId], clientId);
 
   // Try matching on lowercased name
   const slug = clientName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-');
   for (const [key, value] of Object.entries(CLIENT_LOCATIONS)) {
-    if (slug.includes(key) || key.includes(slug)) return value;
+    if (slug.includes(key) || key.includes(slug)) return resolveCreds(value, key);
   }
 
   return null;

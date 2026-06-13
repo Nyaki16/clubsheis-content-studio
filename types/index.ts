@@ -15,6 +15,7 @@ export type ContentType =
   | 'reel'
   | 'static-image'
   | 'video-animation'
+  | 'video-edit'
   | 'ad-creative'
   | 'caption'
   | 'transcript';

@@ -8,6 +8,7 @@ const contentTypes: ContentTypeOption[] = [
   { id: 'reel', label: 'Reel Script', description: 'Short-form video script (30–90s)', icon: 'reel' },
   { id: 'static-image', label: 'Static Image / Poster', description: 'One-frame graphic or announcement', icon: 'static' },
   { id: 'video-animation', label: 'Video Animation', description: 'Animated explainer video with Remotion', icon: 'video' },
+  { id: 'video-edit', label: 'Video Editing', description: 'Edit a full video — captions, b-roll, music, zooms', icon: 'videoedit' },
   { id: 'ad-creative', label: 'Ad Studio', description: 'Brand-matched static ads — opens Ad Studio', icon: 'ad', href: 'https://static-ad-studio.vercel.app' },
   { id: 'caption', label: 'Caption / Social Post', description: 'Single platform social post', icon: 'caption' },
   { id: 'transcript', label: 'Transcript → Content', description: 'Repurpose a transcript into multiple formats', icon: 'transcript' },
@@ -44,6 +45,13 @@ function ContentIcon({ type }: { type: string }) {
       return (
         <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      );
+    case 'videoedit':
+      return (
+        <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+          <circle cx="12" cy="12" r="2.5" strokeWidth={1.5} />
         </svg>
       );
     case 'ad':
